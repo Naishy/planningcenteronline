@@ -1,0 +1,88 @@
+<!--
+QUICK CUSTOMIZATION:
+
+{% assign number_of_columns = 2 %}
+{% assign space_between_columns = "40px" %}
+
+{% assign print_ccli_number = true %}
+{% assign print_author = true %}
+{% assign print_copyright = true %}
+{% assign print_lyrics = true %}
+-->
+
+<html>
+<head>
+    <title>Song Lyrics:: {{ plan.series_title }}:: {{ plan.dates }}</title>
+	<style>
+	
+	* { font-family: Arial, Verdana; font-size: 12pt; }
+    body { padding:0; margin:10px; }
+
+	.chord_chart_content {
+		margin-top: 25px;
+		-moz-column-count: {{ number_of_columns }};
+		-moz-column-gap: {{ space_between_columns }};
+		-webkit-column-count: {{ number_of_columns }};
+		-webkit-column-gap: {{ space_between_columns }};
+		column-count: {{ number_of_columns }};
+		column-gap: {{ space_between_columns }};
+		column-fill: auto;
+	}
+	
+	.column_break{column-break-after: always;}
+
+	#header { width: 100%; }
+
+	.organization_name { font-size: 18pt; font-weight: bold; text-align: center; }
+	.dates { font-size: 15pt; text-align: center;}
+	.plan_title { font-size: 15pt; text-align: center; }
+          
+        .song_header { margin-top: 20px; }
+	.song_title { font-weight: bold; font-size: 16pt; }
+        .credits, .copyright { margin-top: 10px; font-size: 8pt; font-style: italic;}
+	.lyrics { margin-top: 15px; }
+    label { font-weight: bold }
+    h1 { font-weight: bold; font-size: 16pt; display: inline-block;}
+    
+    h1, h2, h3, h4, h5, .song_title, label {
+	  page-break-after: avoid;
+	}
+	
+	</style>
+</head>
+<body>
+  <img style="display: block; margin-left: auto; margin-right: auto; height: 70px;" src="{{ organization.logo_url }}" />
+	<div id="header">
+		<div class="organization_name">{{organization.name}}</div>
+		<div class="dates">{{plan.plan_times[0].starts_at | date: "%H:%M"}} {{ plan.series_title }} - {{ plan.dates | date: "%A %-d %B %Y" }}</div>
+		<div class="plan_title">{{ plan.plan_title }}</div>
+	</div>
+	<div class="chord_chart_content">
+		{% for item in plan.items %}
+                    {% if item.item_type == 'Song' %}
+      					{% if item.song.title contains 'CW_' or item.song.title contains 'NPW_' %}
+      						<div>{{item.arrangement.lyrics}}</div>
+      					{%else%}
+                        	<div class="song">
+                              <div class="song_header">
+                                <div class="song_title">{{item.song.title}}</div>
+                              </div>
+
+                              {% if print_lyrics %}
+                                <div class="lyrics">{{item.arrangement.lyrics}}</div>
+                              {% endif %}
+                              <div class="credits">{% if print_ccli_number and item.song.ccli_id != nil %}#{{item.song.ccli_id}} {% endif %}{% if print_author and item.song.author != '' %}by {{item.song.author}}{% endif %}</div>
+                              <div class="copyright">{% if print_copyright %}{{item.song.copyright}}{% endif %}</div>
+                          </div>
+      					{%endif%}
+                    {% endif %}
+		{% endfor %}
+      <div class="credits">
+        <br>
+        <hr>
+        <br>
+        This service has been compiled from various sources including `Common Worship' and `New Patterns for Worship' both of which are Copyright, The Archbishops' Council.  All songs reproduced by St Augustine’s Church under CCL licence no 2909
+      </div>
+	</div>
+</body>
+</html>
